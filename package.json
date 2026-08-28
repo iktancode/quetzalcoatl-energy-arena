@@ -12,6 +12,6 @@
     "vite": "^8.2.2"
   },
   "dependencies": {
-    "quetzalcoatl-core": "^0.1.0"
+    "quetzalcoatl-core": "file:../../quetzalcoatl-core/quetzalcoatl-core-0.1.0.tgz"
   }
 }

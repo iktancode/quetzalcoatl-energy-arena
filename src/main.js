@@ -1,60 +1,173 @@
-import './style.css'
-import heroImg from './assets/hero.png'
-import javascriptLogo from './assets/javascript.svg'
-import viteLogo from './assets/vite.svg'
-import { setupCounter } from './counter.js'
+import "./style.css";
 
-document.querySelector('#app').innerHTML = `
-<section id="center">
-  <div class="hero">
-    <img src="${heroImg}" class="base" width="170" height="179">
-    <img src="${javascriptLogo}" class="framework" alt="JavaScript logo"/>
-    <img src="${viteLogo}" class="vite" alt="Vite logo" />
-  </div>
-  <div>
-    <h1>Get started</h1>
-    <p>Edit <code>src/main.js</code> and save to test <code>HMR</code></p>
-  </div>
-  <button id="counter" type="button" class="counter"></button>
-</section>
+import {
+  QuetzalcoatlCore
+} from "quetzalcoatl-core";
 
-<div class="ticks"></div>
+import {
+  Player
+} from "./game/Player.js";
 
-<section id="next-steps">
-  <div id="docs">
-    <svg class="icon" role="presentation" aria-hidden="true"><use href="/icons.svg#documentation-icon"></use></svg>
-    <h2>Documentation</h2>
-    <p>Your questions, answered</p>
-    <ul>
-      <li>
-        <a href="https://vite.dev/" target="_blank">
-          <img class="logo" src="${viteLogo}" alt="" />
-          Explore Vite
-        </a>
-      </li>
-      <li>
-        <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank">
-          <img class="button-icon" src="${javascriptLogo}" alt="">
-          Learn more
-        </a>
-      </li>
-    </ul>
-  </div>
-  <div id="social">
-    <svg class="icon" role="presentation" aria-hidden="true"><use href="/icons.svg#social-icon"></use></svg>
-    <h2>Connect with us</h2>
-    <p>Join the Vite community</p>
-    <ul>
-      <li><a href="https://github.com/vitejs/vite" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#github-icon"></use></svg>GitHub</a></li>
-      <li><a href="https://chat.vite.dev/" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#discord-icon"></use></svg>Discord</a></li>
-      <li><a href="https://x.com/vite_js" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#x-icon"></use></svg>X.com</a></li>
-      <li><a href="https://bsky.app/profile/vite.dev" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#bluesky-icon"></use></svg>Bluesky</a></li>
-    </ul>
-  </div>
-</section>
+import {
+  Enemy
+} from "./game/Enemy.js";
 
-<div class="ticks"></div>
-<section id="spacer"></section>
-`
+const app =
+  document.querySelector(
+    "#app"
+  );
 
-setupCounter(document.querySelector('#counter'))
+app.innerHTML = `
+    <main class="game">
+        <section
+            class="arena"
+            aria-label="Quetzalcoatl Energy Arena"
+        >
+            <div
+                class="entity player"
+                aria-label="Player"
+            ></div>
+            <div
+                class="entity obstacle"
+                aria-label="Obstacle"
+            ></div>
+        </section>
+
+        <aside
+            class="hud"
+            noqc
+        >
+            <div>
+                <span>
+                    QUETZALCOATL CORE
+                </span>
+
+                <strong>
+                    ENERGY ARENA
+                </strong>
+            </div>
+
+            <div class="status">
+                <span>
+                    GPU
+                </span>
+
+                <strong>
+                    WebGL2
+                </strong>
+            </div>
+        </aside>
+    </main>
+`;
+
+await new Promise(
+  resolve => {
+    requestAnimationFrame(
+      resolve
+    );
+  }
+);
+
+const core =
+  new QuetzalcoatlCore({
+    root: app,
+    intensity: 0.65
+  });
+
+await core.start();
+
+const playerElement =
+  document.querySelector(
+    ".player"
+  );
+
+const player =
+  new Player({
+    element:
+      playerElement
+  });
+
+player.start();
+
+console.log(
+  "[Energy Arena] Ready"
+);
+
+const arena =
+  document.querySelector(
+    ".arena"
+  );
+
+const enemyPositions = [
+  [180, 160],
+  [420, 130],
+  [760, 190],
+  [980, 320],
+  [850, 600],
+  [520, 700],
+  [220, 620],
+  [130, 390]
+];
+
+const enemies =
+  enemyPositions.map(
+    ([x, y]) => {
+      const enemy =
+        new Enemy({
+          x,
+          y,
+          speed:
+            70
+            + Math.random()
+            * 55
+        });
+
+      enemy.mount(
+        arena
+      );
+
+      return enemy;
+    }
+  );
+
+console.log(
+  `[Energy Arena] ${enemies.length} enemies mounted`
+);
+
+let lastGameTime =
+  performance.now();
+
+function updateGame(
+  time
+) {
+  const delta =
+    Math.min(
+      (
+        time
+        - lastGameTime
+      ) / 1000,
+      0.05
+    );
+
+  lastGameTime =
+    time;
+
+  for (
+    const enemy
+    of enemies
+  ) {
+    enemy.update(
+      player.x,
+      player.y,
+      delta
+    );
+  }
+
+  requestAnimationFrame(
+    updateGame
+  );
+}
+
+requestAnimationFrame(
+  updateGame
+);
