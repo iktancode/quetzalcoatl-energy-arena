@@ -1,9 +1,11 @@
-export class Enemy {
+export class Projectile {
     constructor({
         x,
         y,
-        size = 42,
-        speed = 90
+        targetX,
+        targetY,
+        speed = 720,
+        size = 12
     }) {
         this.x =
             x;
@@ -11,11 +13,29 @@ export class Enemy {
         this.y =
             y;
 
+        this.speed =
+            speed;
+
         this.size =
             size;
 
-        this.speed =
-            speed;
+        const dx =
+            targetX - x;
+
+        const dy =
+            targetY - y;
+
+        const distance =
+            Math.hypot(
+                dx,
+                dy
+            ) || 1;
+
+        this.velocityX =
+            dx / distance;
+
+        this.velocityY =
+            dy / distance;
 
         this.element =
             document.createElement(
@@ -23,14 +43,21 @@ export class Enemy {
             );
 
         this.element.className =
-            "entity enemy";
+            "entity projectile";
 
         this.element.setAttribute(
             "aria-label",
-            "Enemy"
+            "Projectile"
         );
 
         this.#render();
+    }
+
+    get radius() {
+        return (
+            this.size
+            / 2
+        );
     }
 
     mount(
@@ -42,49 +69,34 @@ export class Enemy {
     }
 
     update(
-        targetX,
-        targetY,
         delta
     ) {
-        const dx =
-            targetX - this.x;
-
-        const dy =
-            targetY - this.y;
-
-        const distance =
-            Math.hypot(
-                dx,
-                dy
-            );
-
-        if (distance <= 0) {
-            return;
-        }
-
-        const directionX =
-            dx / distance;
-
-        const directionY =
-            dy / distance;
-
         this.x +=
-            directionX
+            this.velocityX
             * this.speed
             * delta;
 
         this.y +=
-            directionY
+            this.velocityY
             * this.speed
             * delta;
 
         this.#render();
     }
 
-    get radius() {
+    isOutside() {
+        const margin =
+            40;
+
         return (
-            this.size
-            / 2
+            this.x < -margin
+            || this.x
+            > window.innerWidth
+            + margin
+            || this.y < -margin
+            || this.y
+            > window.innerHeight
+            + margin
         );
     }
 

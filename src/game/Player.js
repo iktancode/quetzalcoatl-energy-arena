@@ -29,6 +29,13 @@ export class Player {
         this.#render();
     }
 
+    get radius() {
+        return (
+            this.element.offsetWidth
+            / 2
+        );
+    }
+
     start() {
         if (
             this.frameId !== null
