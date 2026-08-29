@@ -20,6 +20,10 @@ import {
   Projectile
 } from "./game/Projectile.js";
 
+import {
+  WaveManager
+} from "./game/WaveManager.js";
+
 const app =
   document.querySelector(
     "#app"
@@ -80,6 +84,46 @@ app.innerHTML = `
                 <strong id="score">
                     0
                 </strong>
+
+                <span>
+                    WAVE
+                </span>
+
+                <strong id="wave">
+                    1
+                </strong>
+
+                <span>
+                    FPS
+                </span>
+
+                <strong id="fps">
+                    0
+                </strong>
+
+                <span>
+                    ENTITIES
+                </span>
+
+                <strong id="entities">
+                    0
+                </strong>
+
+                <span>
+                    ENEMIES
+                </span>
+
+                <strong id="enemy-count">
+                    0
+                </strong>
+
+                <span>
+                    PROJECTILES
+                </span>
+
+                <strong id="projectile-count">
+                    0
+                </strong>
             </div>
         </aside>
     </main>
@@ -91,15 +135,29 @@ await new Promise(
       resolve
     );
   }
+)
+
+app.setAttribute(
+    "data-qc",
+    "on"
 );
 
 const core =
-  new QuetzalcoatlCore({
-    root: app,
-    intensity: 0.65
-  });
+    new QuetzalcoatlCore({
+        root:
+            app,
+        intensity:
+            0.65,
+        participation:
+            "explicit"
+    });
 
 await core.start();
+
+console.log(
+    "[Arena QC Universe]",
+    core.universe.getAll().length
+);
 
 const arena =
   document.querySelector(
@@ -119,6 +177,31 @@ const healthElement =
 const scoreElement =
   document.querySelector(
     "#score"
+  );
+
+const waveElement =
+  document.querySelector(
+    "#wave"
+  );
+
+const fpsElement =
+  document.querySelector(
+    "#fps"
+  );
+
+const entitiesElement =
+  document.querySelector(
+    "#entities"
+  );
+
+const enemyCountElement =
+  document.querySelector(
+    "#enemy-count"
+  );
+
+const projectileCountElement =
+  document.querySelector(
+    "#projectile-count"
   );
 
 const player =
@@ -159,6 +242,15 @@ const enemies =
       return enemy;
     }
   );
+
+const waveManager =
+  new WaveManager({
+    arena,
+    enemies
+  });
+
+waveManager.wave =
+  1;
 
 const energyNode =
   new EnergyNode();
@@ -239,6 +331,15 @@ const hitCooldown =
 let lastGameTime =
   performance.now();
 
+let fpsFrames =
+  0;
+
+let fpsLastTime =
+  performance.now();
+
+let currentFps =
+  0;
+
 player.start();
 
 function updateGame(
@@ -259,6 +360,33 @@ function updateGame(
 
   lastGameTime =
     time;
+
+  fpsFrames +=
+    1;
+
+  if (
+    time - fpsLastTime
+    >= 1000
+  ) {
+    const elapsed =
+      time - fpsLastTime;
+
+    currentFps =
+      Math.round(
+        fpsFrames
+        * 1000
+        / elapsed
+      );
+
+    fpsFrames =
+      0;
+
+    fpsLastTime =
+      time;
+
+    fpsElement.textContent =
+      currentFps;
+  }
 
   for (
     const enemy
@@ -317,7 +445,7 @@ function updateGame(
           "[Energy Arena] Game Over"
         );
 
-        break;
+        return;
       }
     }
   }
@@ -447,11 +575,35 @@ function updateGame(
     );
   }
 
-  if (!gameOver) {
-    requestAnimationFrame(
-      updateGame
+  if (
+    enemies.length === 0
+  ) {
+    const wave =
+      waveManager
+        .spawnNextWave();
+
+    waveElement.textContent =
+      wave;
+
+    console.log(
+      `[Energy Arena] Wave ${wave} started`
     );
   }
+
+  enemyCountElement.textContent =
+    enemies.length;
+
+  projectileCountElement.textContent =
+    projectiles.length;
+
+  entitiesElement.textContent =
+    3
+    + enemies.length
+    + projectiles.length;
+
+  requestAnimationFrame(
+    updateGame
+  );
 }
 
 requestAnimationFrame(
@@ -496,6 +648,17 @@ window.addEventListener(
     );
   }
 );
+
+enemyCountElement.textContent =
+  enemies.length;
+
+projectileCountElement.textContent =
+  projectiles.length;
+
+entitiesElement.textContent =
+  3
+  + enemies.length
+  + projectiles.length;
 
 console.log(
   `[Energy Arena] ${enemies.length} enemies mounted`
