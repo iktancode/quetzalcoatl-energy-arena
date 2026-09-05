@@ -12,6 +12,6 @@
     "vite": "^8.2.2"
   },
   "dependencies": {
-    "quetzalcoatl-core": "^0.1.1"
+    "quetzalcoatl-core": "^0.1.2"
   }
 }

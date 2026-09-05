@@ -28,16 +28,6 @@ body {
       #020806 100%);
 }
 
-body {
-  font-family:
-    Inter,
-    system-ui,
-    sans-serif;
-
-  color:
-    #ffffff;
-}
-
 button,
 input {
   font: inherit;
@@ -70,21 +60,47 @@ input {
   position: absolute;
 }
 
+/*
+ * Player
+ */
+
 .player {
   left: 0;
   top: 0;
 
-  width: 64px;
-  height: 64px;
+  width: 68px;
+  height: 68px;
 
   border-radius: 50%;
 
   background:
-    #64eba5;
+    #7dffd0;
+
+  border:
+    3px solid rgba(230,
+      255,
+      248,
+      0.95);
+
+  box-shadow:
+    0 0 14px rgba(100,
+      255,
+      190,
+      0.9),
+    0 0 32px rgba(100,
+      235,
+      165,
+      0.55);
+
+  z-index: 5;
 
   will-change:
     transform;
 }
+
+/*
+ * Enemy
+ */
 
 .enemy {
   left: 0;
@@ -99,6 +115,10 @@ input {
     transform;
 }
 
+/*
+ * Projectile
+ */
+
 .projectile {
   left: 0;
   top: 0;
@@ -112,6 +132,10 @@ input {
     transform;
 }
 
+/*
+ * Energy
+ */
+
 .energyNode {
   left: 0;
   top: 0;
@@ -124,9 +148,19 @@ input {
   background:
     #8cf7c1;
 
+  box-shadow:
+    0 0 12px rgba(140,
+      247,
+      193,
+      0.65);
+
   will-change:
     transform;
 }
+
+/*
+ * Obstacle
+ */
 
 .obstacle {
   left: 17%;
@@ -143,6 +177,10 @@ input {
       255,
       0.22);
 }
+
+/*
+ * HUD
+ */
 
 .hud {
   position: fixed;
@@ -179,7 +217,8 @@ input {
 
   font-size: 0.65rem;
 
-  letter-spacing: 0.14em;
+  letter-spacing:
+    0.14em;
 }
 
 .hud strong {
@@ -187,9 +226,276 @@ input {
 
   font-weight: 600;
 
-  letter-spacing: 0.08em;
+  letter-spacing:
+    0.08em;
 }
 
 .status {
   text-align: right;
+}
+
+/*
+ * Intro
+ */
+
+.game-intro {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 1000;
+
+  display: grid;
+
+  place-items: center;
+
+  padding: 20px;
+
+  background:
+    rgba(2,
+      7,
+      10,
+      0.97);
+
+  opacity: 1;
+
+  visibility: visible;
+
+  transition:
+    opacity 350ms ease,
+    visibility 350ms ease;
+}
+
+.game-intro.hidden {
+  opacity: 0;
+
+  visibility: hidden;
+
+  pointer-events: none;
+}
+
+.game-intro-panel {
+  width:
+    min(540px,
+      calc(100vw - 40px));
+
+  padding: 44px;
+
+  border:
+    1px solid rgba(255,
+      255,
+      255,
+      0.15);
+
+  background:
+    rgba(5,
+      12,
+      16,
+      0.88);
+
+  box-shadow:
+    0 30px 100px rgba(0,
+      0,
+      0,
+      0.45);
+}
+
+.game-intro-engine {
+  display: block;
+
+  margin-bottom: 10px;
+
+  font-size: 11px;
+
+  font-weight: 600;
+
+  letter-spacing:
+    0.24em;
+
+  opacity: 0.55;
+}
+
+.game-intro h1 {
+  margin: 0;
+
+  font-size:
+    clamp(32px,
+      6vw,
+      48px);
+
+  line-height: 1;
+
+  letter-spacing:
+    0.08em;
+}
+
+.game-intro-subtitle {
+  margin:
+    10px 0 0;
+
+  font-size: 10px;
+
+  letter-spacing:
+    0.22em;
+
+  opacity: 0.45;
+}
+
+.game-intro-description {
+  margin:
+    28px 0;
+
+  max-width: 460px;
+
+  font-size: 14px;
+
+  line-height: 1.7;
+
+  opacity: 0.7;
+}
+
+.game-instructions {
+  display: grid;
+
+  margin-bottom: 30px;
+
+  border-top:
+    1px solid rgba(255,
+      255,
+      255,
+      0.08);
+}
+
+.game-instructions>div {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 30px;
+
+  padding:
+    11px 0;
+
+  border-bottom:
+    1px solid rgba(255,
+      255,
+      255,
+      0.08);
+}
+
+.game-instructions span {
+  font-size: 10px;
+
+  letter-spacing:
+    0.14em;
+
+  opacity: 0.45;
+}
+
+.game-instructions strong {
+  font-size: 11px;
+
+  font-weight: 600;
+
+  letter-spacing:
+    0.1em;
+
+  text-align: right;
+}
+
+/*
+ * Start
+ */
+
+#start-game {
+  width: 100%;
+
+  padding:
+    15px 20px;
+
+  border:
+    1px solid rgba(255,
+      255,
+      255,
+      0.8);
+
+  background:
+    transparent;
+
+  color:
+    inherit;
+
+  font:
+    inherit;
+
+  font-size: 12px;
+
+  font-weight: 600;
+
+  letter-spacing:
+    0.18em;
+
+  cursor: pointer;
+
+  transition:
+    background 180ms ease,
+    color 180ms ease,
+    transform 180ms ease;
+}
+
+#start-game:hover {
+  background:
+    rgba(255,
+      255,
+      255,
+      0.95);
+
+  color:
+    #071014;
+
+  transform:
+    translateY(-1px);
+}
+
+#start-game:active {
+  transform:
+    translateY(1px);
+}
+
+.game-intro-enter {
+  display: block;
+
+  margin-top: 14px;
+
+  text-align: center;
+
+  font-size: 9px;
+
+  letter-spacing:
+    0.18em;
+
+  opacity: 0.3;
+}
+
+/*
+ * Mobile
+ */
+
+@media (max-width: 600px) {
+  .game-intro-panel {
+    padding:
+      30px 24px;
+  }
+
+  .game-intro-description {
+    font-size:
+      13px;
+  }
+
+  .game-instructions>div {
+    gap:
+      15px;
+  }
 }
