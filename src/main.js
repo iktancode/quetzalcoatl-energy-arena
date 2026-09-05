@@ -31,6 +31,7 @@ const app =
 
 app.innerHTML = `
     <main class="game">
+
         <section
             class="arena"
             aria-label="Quetzalcoatl Energy Arena"
@@ -61,6 +62,7 @@ app.innerHTML = `
             </div>
 
             <div class="status">
+
                 <span>
                     GPU
                 </span>
@@ -124,8 +126,114 @@ app.innerHTML = `
                 <strong id="projectile-count">
                     0
                 </strong>
+
             </div>
         </aside>
+
+        <div
+            class="game-intro"
+            id="game-intro"
+            noqc
+        >
+            <div class="game-intro-panel">
+
+                <span class="game-intro-engine">
+                    QUETZALCOATL CORE
+                </span>
+
+                <h1>
+                    ENERGY ARENA
+                </h1>
+
+                <p class="game-intro-subtitle">
+                    INTERACTIVE ENERGETIC ARENA
+                </p>
+
+                <p class="game-intro-description">
+                    Move through a GPU-rendered world powered by
+                    Quetzalcoatl Core.
+                    Collect energy, avoid collisions and destroy
+                    incoming entities.
+                </p>
+
+                <div class="game-instructions">
+
+                    <div>
+                        <span>
+                            MOVE
+                        </span>
+
+                        <strong>
+                            WASD / ARROWS
+                        </strong>
+                    </div>
+
+                    <div>
+                        <span>
+                            AIM
+                        </span>
+
+                        <strong>
+                            MOUSE
+                        </strong>
+                    </div>
+
+                    <div>
+                        <span>
+                            FIRE
+                        </span>
+
+                        <strong>
+                            CLICK / SPACE
+                        </strong>
+                    </div>
+
+                    <div>
+                        <span>
+                            ENERGY NODE
+                        </span>
+
+                        <strong>
+                            +100 SCORE
+                        </strong>
+                    </div>
+
+                    <div>
+                        <span>
+                            DESTROY ENEMY
+                        </span>
+
+                        <strong>
+                            +250 SCORE
+                        </strong>
+                    </div>
+
+                    <div>
+                        <span>
+                            COLLISION
+                        </span>
+
+                        <strong>
+                            -10 ENERGY
+                        </strong>
+                    </div>
+
+                </div>
+
+                <button
+                    id="start-game"
+                    type="button"
+                >
+                    ENTER ARENA
+                </button>
+
+                <span class="game-intro-enter">
+                    PRESS ENTER
+                </span>
+
+            </div>
+        </div>
+
     </main>
 `;
 
@@ -135,29 +243,39 @@ await new Promise(
       resolve
     );
   }
-)
+);
+
+/*
+ * Quetzalcoatl Core
+ */
 
 app.setAttribute(
-    "data-qc",
-    "on"
+  "data-qc",
+  "on"
 );
 
 const core =
-    new QuetzalcoatlCore({
-        root:
-            app,
-        intensity:
-            0.65,
-        participation:
-            "explicit"
-    });
+  new QuetzalcoatlCore({
+    root:
+      app,
+
+    intensity:
+      0.65,
+
+    participation:
+      "explicit"
+  });
 
 await core.start();
 
 console.log(
-    "[Arena QC Universe]",
-    core.universe.getAll().length
+  "[Arena QC Universe]",
+  core.universe.getAll().length
 );
+
+/*
+ * DOM
+ */
 
 const arena =
   document.querySelector(
@@ -204,11 +322,29 @@ const projectileCountElement =
     "#projectile-count"
   );
 
+const introElement =
+  document.querySelector(
+    "#game-intro"
+  );
+
+const startGameButton =
+  document.querySelector(
+    "#start-game"
+  );
+
+/*
+ * Player
+ */
+
 const player =
   new Player({
     element:
       playerElement
   });
+
+/*
+ * Enemies
+ */
 
 const enemyPositions = [
   [180, 160],
@@ -243,6 +379,10 @@ const enemies =
     }
   );
 
+/*
+ * Waves
+ */
+
 const waveManager =
   new WaveManager({
     arena,
@@ -252,12 +392,20 @@ const waveManager =
 waveManager.wave =
   1;
 
+/*
+ * Energy node
+ */
+
 const energyNode =
   new EnergyNode();
 
 energyNode.mount(
   arena
 );
+
+/*
+ * Projectiles
+ */
 
 const projectiles =
   [];
@@ -274,10 +422,59 @@ let lastShotTime =
 const shotCooldown =
   140;
 
+/*
+ * Game state
+ */
+
+let health =
+  100;
+
+let score =
+  0;
+
+let gameOver =
+  false;
+
+let gameStarted =
+  false;
+
+let lastHitTime =
+  0;
+
+const hitCooldown =
+  500;
+
+/*
+ * Time
+ */
+
+let lastGameTime =
+  performance.now();
+
+let fpsFrames =
+  0;
+
+let fpsLastTime =
+  performance.now();
+
+let currentFps =
+  0;
+
+/*
+ * Fire projectile
+ */
+
 function fireProjectile(
   targetX,
   targetY
 ) {
+  if (
+    !gameStarted
+    || gameOver
+  ) {
+    return;
+  }
+
   const now =
     performance.now();
 
@@ -313,39 +510,55 @@ function fireProjectile(
   );
 }
 
-let health =
-  100;
+/*
+ * Start game
+ */
 
-let score =
-  0;
+function startGame() {
+  if (
+    gameStarted
+  ) {
+    return;
+  }
 
-let gameOver =
-  false;
+  gameStarted =
+    true;
 
-let lastHitTime =
-  0;
+  introElement.classList.add(
+    "hidden"
+  );
 
-const hitCooldown =
-  500;
+  lastGameTime =
+    performance.now();
 
-let lastGameTime =
-  performance.now();
+  fpsLastTime =
+    performance.now();
 
-let fpsFrames =
-  0;
+  fpsFrames =
+    0;
 
-let fpsLastTime =
-  performance.now();
+  player.start();
 
-let currentFps =
-  0;
+  requestAnimationFrame(
+    updateGame
+  );
 
-player.start();
+  console.log(
+    "[Energy Arena] Started"
+  );
+}
+
+/*
+ * Main game loop
+ */
 
 function updateGame(
   time
 ) {
-  if (gameOver) {
+  if (
+    gameOver
+    || !gameStarted
+  ) {
     return;
   }
 
@@ -360,6 +573,10 @@ function updateGame(
 
   lastGameTime =
     time;
+
+  /*
+   * FPS
+   */
 
   fpsFrames +=
     1;
@@ -387,6 +604,10 @@ function updateGame(
     fpsElement.textContent =
       currentFps;
   }
+
+  /*
+   * Enemies
+   */
 
   for (
     const enemy
@@ -449,6 +670,10 @@ function updateGame(
       }
     }
   }
+
+  /*
+   * Projectiles
+   */
 
   for (
     let projectileIndex =
@@ -529,7 +754,9 @@ function updateGame(
       break;
     }
 
-    if (hit) {
+    if (
+      hit
+    ) {
       continue;
     }
 
@@ -544,6 +771,10 @@ function updateGame(
       );
     }
   }
+
+  /*
+   * Energy node
+   */
 
   const energyDistance =
     Math.hypot(
@@ -575,6 +806,10 @@ function updateGame(
     );
   }
 
+  /*
+   * Waves
+   */
+
   if (
     enemies.length === 0
   ) {
@@ -589,6 +824,10 @@ function updateGame(
       `[Energy Arena] Wave ${wave} started`
     );
   }
+
+  /*
+   * HUD
+   */
 
   enemyCountElement.textContent =
     enemies.length;
@@ -606,9 +845,18 @@ function updateGame(
   );
 }
 
-requestAnimationFrame(
-  updateGame
+/*
+ * Start button
+ */
+
+startGameButton.addEventListener(
+  "click",
+  startGame
 );
+
+/*
+ * Pointer
+ */
 
 window.addEventListener(
   "pointermove",
@@ -624,6 +872,12 @@ window.addEventListener(
 window.addEventListener(
   "pointerdown",
   event => {
+    if (
+      !gameStarted
+    ) {
+      return;
+    }
+
     fireProjectile(
       event.clientX,
       event.clientY
@@ -631,11 +885,27 @@ window.addEventListener(
   }
 );
 
+/*
+ * Keyboard
+ */
+
 window.addEventListener(
   "keydown",
   event => {
     if (
-      event.code !== "Space"
+      !gameStarted
+      && event.code === "Enter"
+    ) {
+      event.preventDefault();
+
+      startGame();
+
+      return;
+    }
+
+    if (
+      !gameStarted
+      || event.code !== "Space"
     ) {
       return;
     }
@@ -648,6 +918,10 @@ window.addEventListener(
     );
   }
 );
+
+/*
+ * Initial HUD
+ */
 
 enemyCountElement.textContent =
   enemies.length;
